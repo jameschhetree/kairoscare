@@ -1,0 +1,467 @@
+// KairosCare MVP — Prisma schema
+// HIPAA-aware multi-tenant schema. All PHI-bearing tables scope by agencyId
+// for Supabase Row Level Security. Mirrored RLS policies live in
+// /supabase/migrations/0002_rls_policies.sql.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Language {
+  EN
+  ES
+}
+
+enum UserRole {
+  KairosSuperAdmin
+  KairosSupportAdmin
+  AgencyOwner
+  AgencyStaff
+  CNA
+  FamilyPrimary
+  FamilyViewer
+  HealthcareProxy
+}
+
+enum FamilyRelationshipRole {
+  PrimaryContact
+  Viewer
+  HealthcareProxy
+  BillingContact
+}
+
+enum VisitStatus {
+  NotStarted
+  InProgress
+  Completed
+  Missed
+  Cancelled
+}
+
+enum CareUpdateType {
+  CheckIn
+  Meal
+  Mood
+  Activity
+  Note
+  Photo
+  EndOfShift
+}
+
+enum Mood {
+  Happy
+  Calm
+  Tired
+  Anxious
+  Unwell
+  Other
+}
+
+enum MealStatus {
+  AteWell
+  AteSome
+  RefusedMeal
+  Hydrated
+  NeedsFollowUp
+}
+
+enum ActivityType {
+  Conversation
+  Walk
+  LightExercise
+  HygieneSupport
+  MealPrep
+  MedicationReminder
+  Errands
+  Companionship
+  Other
+}
+
+enum CareUpdateVisibility {
+  FamilyVisible
+  AgencyOnly
+}
+
+enum ReactionType {
+  ThankYou
+  Heart
+  Smile
+}
+
+enum InviteStatus {
+  Pending
+  Accepted
+  Expired
+  Revoked
+}
+
+enum SubscriptionTier {
+  Pilot
+  Starter
+  Growth
+}
+
+enum SubscriptionStatus {
+  Trial
+  Active
+  Suspended
+  Cancelled
+}
+
+// ============================================================================
+// CORE: ORGANIZATIONS + USERS + ROLES
+// ============================================================================
+
+model Organization {
+  id                          String   @id @default(cuid())
+  name                        String
+  slug                        String   @unique
+  logoUrl                     String?
+  primaryContact              String?
+  phone                       String?
+  email                       String?
+  defaultNotificationSettings Json?
+  /// Org-level master switch for real-time family publishing.
+  /// true (default): CareUpdate.isPublished = true at insert.
+  /// false: agency staff flips isPublished after review.
+  autoPublishCnaUpdates       Boolean  @default(true)
+  createdAt                   DateTime @default(now())
+  deletedAt                   DateTime?
+
+  users               User[]
+  clients             Client[]
+  cnaProfiles         CNAProfile[]
+  cnaClientAssignments CNAClientAssignment[]
+  visits              Visit[]
+  careUpdates         CareUpdate[]
+  invites             Invite[]
+  subscriptionPlans   SubscriptionPlan[]
+  internalAdminNotes  InternalAdminNote[]
+  auditLogs           AuditLog[]
+
+  @@index([slug])
+}
+
+/// One row per human. Auth lives in Supabase (auth.users); supabaseUserId is
+/// the join key. Multiple UserRoleAssignment rows = multi-role support
+/// (e.g. agency staff who is also a family member for their own parent).
+model User {
+  id                String   @id @default(cuid())
+  supabaseUserId    String?  @unique
+  email             String   @unique
+  fullName          String
+  preferredLanguage Language @default(EN)
+  /// nullable for KairosCare-internal admins who do not belong to an agency.
+  agencyId          String?
+  agency            Organization? @relation(fields: [agencyId], references: [id])
+  lastLoginAt       DateTime?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  roleAssignments   UserRoleAssignment[]
+  cnaProfile        CNAProfile?
+  familyMember      FamilyMember?
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  invitesSent       Invite[]            @relation("InviteAuthor")
+  internalNotes     InternalAdminNote[] @relation("InternalNoteAuthor")
+
+  @@index([agencyId])
+  @@index([email])
+}
+
+/// Many-to-many user↔role. A single user may hold multiple roles concurrently;
+/// scopeAgencyId / scopeClientId narrow the grant.
+model UserRoleAssignment {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           UserRole
+  scopeAgencyId  String?
+  scopeClientId  String?
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, role, scopeAgencyId, scopeClientId])
+  @@index([userId])
+  @@index([role])
+}
+
+// ============================================================================
+// CLIENTS + FAMILY
+// ============================================================================
+
+model Client {
+  id                String   @id @default(cuid())
+  agencyId          String
+  agency            Organization @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  fullName          String
+  dateOfBirth       DateTime?
+  address           String?
+  careNotes         String?
+  emergencyContact  String?
+  preferredLanguage Language @default(EN)
+  /// state field for geo-agnostic launch — populated free-form for now.
+  state             String?
+  internalNotes     String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  familyMemberships    ClientFamilyMembership[]
+  cnaAssignments       CNAClientAssignment[]
+  visits               Visit[]
+  careUpdates          CareUpdate[]
+
+  @@index([agencyId])
+}
+
+model FamilyMember {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName            String
+  relationshipToClient String?
+  createdAt           DateTime @default(now())
+
+  clientMemberships ClientFamilyMembership[]
+  reactions         Reaction[]
+  comments          Comment[]
+}
+
+model ClientFamilyMembership {
+  id                 String                  @id @default(cuid())
+  clientId           String
+  client             Client                  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  familyMemberId     String
+  familyMember       FamilyMember            @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+  role               FamilyRelationshipRole
+  canViewAllUpdates  Boolean                 @default(true)
+  createdAt          DateTime                @default(now())
+
+  @@unique([clientId, familyMemberId])
+  @@index([clientId])
+  @@index([familyMemberId])
+}
+
+// ============================================================================
+// CNA
+// ============================================================================
+
+model CNAProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agencyId        String
+  agency          Organization @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  certifications  String[]
+  languagesSpoken Language[]
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  clientAssignments CNAClientAssignment[]
+  visits            Visit[]
+  careUpdates       CareUpdate[]
+
+  @@index([agencyId])
+}
+
+model CNAClientAssignment {
+  id        String    @id @default(cuid())
+  cnaId     String
+  cna       CNAProfile @relation(fields: [cnaId], references: [id], onDelete: Cascade)
+  clientId  String
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  agencyId  String
+  agency    Organization @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime?
+
+  @@unique([cnaId, clientId, startDate])
+  @@index([cnaId])
+  @@index([clientId])
+  @@index([agencyId])
+}
+
+// ============================================================================
+// VISITS + CARE UPDATES
+// ============================================================================
+
+model Visit {
+  id             String      @id @default(cuid())
+  clientId       String
+  client         Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  cnaId          String
+  cna            CNAProfile  @relation(fields: [cnaId], references: [id], onDelete: Cascade)
+  agencyId       String
+  agency         Organization @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  actualStart    DateTime?
+  actualEnd      DateTime?
+  status         VisitStatus @default(NotStarted)
+  createdAt      DateTime    @default(now())
+
+  careUpdates CareUpdate[]
+
+  @@index([clientId])
+  @@index([cnaId])
+  @@index([agencyId])
+  @@index([scheduledStart])
+}
+
+model CareUpdate {
+  id                String                 @id @default(cuid())
+  visitId           String?
+  visit             Visit?                 @relation(fields: [visitId], references: [id])
+  clientId          String
+  client            Client                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  cnaId             String
+  cna               CNAProfile             @relation(fields: [cnaId], references: [id])
+  agencyId          String
+  agency            Organization           @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  updateType        CareUpdateType
+  mood              Mood?
+  mealStatus        MealStatus?
+  activityType      ActivityType?
+  note              String?
+  /// Storage path inside Supabase encrypted bucket. NEVER persist a public
+  /// URL — signed URLs are minted server-side per request.
+  photoStoragePath  String?
+  visibility        CareUpdateVisibility   @default(FamilyVisible)
+  timestamp         DateTime               @default(now())
+  createdByUserId   String
+  /// Honors Organization.autoPublishCnaUpdates at insert. Agency staff can
+  /// flip later when org has review-first workflow.
+  isPublished       Boolean                @default(true)
+
+  reactions Reaction[]
+  comments  Comment[]
+
+  @@index([clientId])
+  @@index([cnaId])
+  @@index([agencyId])
+  @@index([visitId])
+  @@index([timestamp])
+}
+
+model Reaction {
+  id             String       @id @default(cuid())
+  careUpdateId   String
+  careUpdate     CareUpdate   @relation(fields: [careUpdateId], references: [id], onDelete: Cascade)
+  familyMemberId String
+  familyMember   FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+  type           ReactionType
+  createdAt      DateTime     @default(now())
+
+  @@unique([careUpdateId, familyMemberId, type])
+  @@index([careUpdateId])
+}
+
+model Comment {
+  id              String       @id @default(cuid())
+  careUpdateId    String
+  careUpdate      CareUpdate   @relation(fields: [careUpdateId], references: [id], onDelete: Cascade)
+  familyMemberId  String
+  familyMember    FamilyMember @relation(fields: [familyMemberId], references: [id], onDelete: Cascade)
+  body            String
+  /// Flipped true when agency staff has been notified / forwarded.
+  agencyEscalated Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+
+  @@index([careUpdateId])
+}
+
+// ============================================================================
+// NOTIFICATIONS + INVITES
+// ============================================================================
+
+model Notification {
+  id              String   @id @default(cuid())
+  recipientUserId String
+  recipient       User     @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
+  type            String
+  /// Never persist PHI here — the brief forbids PHI in email/SMS/push bodies.
+  /// Generic types only (e.g. "new_care_update", "family_reaction").
+  payload         Json
+  isRead          Boolean  @default(false)
+  sentAt          DateTime @default(now())
+
+  @@index([recipientUserId])
+  @@index([isRead])
+}
+
+model Invite {
+  id          String       @id @default(cuid())
+  agencyId    String
+  agency      Organization @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  email       String
+  role        UserRole
+  invitedById String
+  invitedBy   User         @relation("InviteAuthor", fields: [invitedById], references: [id])
+  status      InviteStatus @default(Pending)
+  expiresAt   DateTime
+  token       String       @unique
+  createdAt   DateTime     @default(now())
+
+  @@index([agencyId])
+  @@index([email])
+}
+
+// ============================================================================
+// PLAN + ADMIN NOTES + AUDIT
+// ============================================================================
+
+model SubscriptionPlan {
+  id             String             @id @default(cuid())
+  agencyId       String
+  agency         Organization       @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  tier           SubscriptionTier   @default(Pilot)
+  status         SubscriptionStatus @default(Trial)
+  monthlyRate    Int                @default(0)
+  activeClientCap Int               @default(50)
+  createdAt      DateTime           @default(now())
+
+  @@index([agencyId])
+}
+
+model InternalAdminNote {
+  id           String       @id @default(cuid())
+  agencyId     String
+  agency       Organization @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  authorUserId String
+  author       User         @relation("InternalNoteAuthor", fields: [authorUserId], references: [id])
+  body         String
+  createdAt    DateTime     @default(now())
+
+  @@index([agencyId])
+}
+
+/// HIPAA-mandated audit trail. Every PHI read or write writes here.
+/// Hand-off pattern: lib/audit.ts wraps Prisma operations.
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String?
+  actor        User?    @relation(fields: [actorUserId], references: [id])
+  action       String
+  entityType   String
+  entityId     String?
+  agencyId     String?
+  agency       Organization? @relation(fields: [agencyId], references: [id])
+  ipAddress    String?
+  userAgent    String?
+  payload      Json?
+  timestamp    DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([agencyId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+}

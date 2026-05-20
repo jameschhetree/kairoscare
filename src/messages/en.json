@@ -1,0 +1,30 @@
+{
+  "common": {
+    "appName": "KairosCare",
+    "tagline": "Real-time care visibility for families and home care agencies."
+  },
+  "cna": {
+    "today": "Today",
+    "startVisit": "Start visit",
+    "checkIn": "Check-in",
+    "meal": "Meal",
+    "mood": "Mood",
+    "activity": "Activity",
+    "note": "Note",
+    "photo": "Photo",
+    "endOfShift": "End of shift",
+    "moods": {
+      "happy": "Happy",
+      "calm": "Calm",
+      "tired": "Tired",
+      "anxious": "Anxious",
+      "unwell": "Not feeling well",
+      "other": "Other"
+    }
+  },
+  "family": {
+    "timeline": "Timeline",
+    "thankYou": "Thank you",
+    "commentPrompt": "Send a note to the agency"
+  }
+}

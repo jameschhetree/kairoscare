@@ -1,26 +1,169 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * KairosCare — Warm Trust design system.
+ *
+ * Tokens are deliberately spare. Two type families (Inter Tight for headlines,
+ * Inter for body), a palette tuned for healthcare-safe warmth (navy + warm
+ * cream + sky accent + gentle green), and a small set of mood semaphore colors
+ * carried from the brief. Avoid generic Tailwind blues — those skim AI-slop.
+ */
+
+@theme {
+  --color-navy-950: #0a1f33;
+  --color-navy-900: #0f2a44;
+  --color-navy-800: #163553;
+  --color-navy-700: #1f4569;
+  --color-navy-100: #d5dee9;
+
+  --color-sky-100: #e3effb;
+  --color-sky-300: #b9d6ee;
+  --color-sky-500: #7db7e8;
+  --color-sky-700: #4a8fc6;
+
+  --color-cream-50:  #fcfaf6;
+  --color-cream-100: #faf7f2;
+  --color-cream-200: #f3ede2;
+  --color-cream-300: #ead9c2;
+
+  --color-warm-ink: #2b2620;
+  --color-warm-muted: #6e6457;
+  --color-warm-hairline: #e6dccb;
+
+  --color-positive: #5fa978;
+  --color-positive-soft: #d8ecd7;
+
+  /* Mood semaphore */
+  --color-mood-happy:   #5fa978;
+  --color-mood-calm:    #7db7e8;
+  --color-mood-tired:   #c9a146;
+  --color-mood-anxious: #e0846b;
+  --color-mood-unwell:  #b85450;
+
+  /* Surfaces */
+  --color-surface: var(--color-cream-100);
+  --color-surface-elevated: #fffdf8;
+  --color-surface-overlay: #ffffff;
+
+  --color-foreground: var(--color-navy-900);
+  --color-muted: var(--color-warm-muted);
+  --color-hairline: var(--color-warm-hairline);
+
+  /* Typography */
+  --font-display: var(--font-inter-tight), "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+
+  --shadow-soft: 0 1px 2px rgba(15, 42, 68, 0.06), 0 10px 30px -12px rgba(15, 42, 68, 0.12);
+  --shadow-card: 0 1px 0 rgba(15, 42, 68, 0.04), 0 18px 48px -28px rgba(15, 42, 68, 0.22);
+  --shadow-lift: 0 24px 60px -32px rgba(15, 42, 68, 0.35);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body {
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+::selection { background: var(--color-sky-300); color: var(--color-navy-900); }
+
+/* A faint warm-paper grain to fight the AI-clean centered-SaaS look. Not loud,
+   just enough to give surfaces a printed feeling. */
+.surface-grain {
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(124, 183, 232, 0.07), transparent 38%),
+    radial-gradient(circle at 88% 8%, rgba(201, 161, 70, 0.06), transparent 40%),
+    radial-gradient(circle at 50% 110%, rgba(95, 169, 120, 0.05), transparent 45%);
+}
+
+/* Hairline divider used between marketing sections and inside cards. */
+.hairline { border-top: 1px solid var(--color-hairline); }
+
+/* The "display" type style — used only for marketing hero & section H2.
+   Tight tracking + small-caps numerals in tabular form for stats. */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-feature-settings: "ss01" 1, "cv11" 1, "tnum" 0;
+}
+
+/* Asymmetric editorial layout helper — used on the hero. Tailwind alone tends
+   toward perfect centering; this nudges off-center on purpose. */
+.editorial-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: end;
+}
+@media (max-width: 960px) {
+  .editorial-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 999px;
+  background: var(--color-navy-900);
+  color: var(--color-cream-50);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  box-shadow: var(--shadow-soft);
+  transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              background 200ms ease;
+}
+.btn-primary:hover { background: var(--color-navy-800); transform: translateY(-1px); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-navy-900);
+  border: 1px solid var(--color-navy-100);
+  font-weight: 500;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.btn-secondary:hover { background: var(--color-cream-200); border-color: var(--color-navy-700); }
+
+/* Role badge on the app shell. */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-cream-200);
+  color: var(--color-navy-900);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  border: 1px solid var(--color-warm-hairline);
+}
+.role-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-positive);
+}
+
+/* Card primitive. */
+.card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-warm-hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
