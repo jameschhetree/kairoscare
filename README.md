@@ -299,3 +299,5 @@ public/
 ## License
 
 Proprietary — KairosCare. All rights reserved.
+
+<!-- GitHub mirror connected 2026-06-01T20:35:18Z -->
