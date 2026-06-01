@@ -1,0 +1,764 @@
+Claude Agent Prompt: Build KairosCare MVP
+
+You are my senior full-stack product engineer, UX designer, and startup MVP architect.
+
+We are building KairosCare, a B2B SaaS platform for home care agencies. The product is a real-time family visibility and wellness layer for home care. We are not trying to replace HHAeXchange, WellSky, AxisCare, AlayaCare, CareSmartz360, or other back-office home care systems. We are building the layer those tools do not do well: real-time, emotionally reassuring, family-facing care updates powered by CNAs.
+
+The core thesis:
+
+Home care agencies already have software for scheduling, EVV, billing, payroll, and documentation. But families still feel anxious because they do not know what happened during the visit. Agencies lose clients because of poor communication. CNAs are the daily users, but they cannot feel surveilled or burdened. The product must make CNAs’ jobs easier, not harder.
+
+KairosCare should serve four portals:
+
+1. CNA Portal
+2. Patient / Family Portal
+3. Home Care Agency Portal
+4. KairosCare Internal Admin Backend
+
+Important: There is currently no logo, branding, design system, or visual identity. You should propose a clean, modern brand direction and implement a polished MVP UI. The brand should feel trustworthy, warm, healthcare-safe, modern, and family-centered. Think: healthcare SaaS meets Brightwheel/ClassDojo-style family reassurance, but for elder care.
+
+
+Product Positioning
+
+KairosCare is:
+
+A real-time care visibility platform for home care agencies that lets CNAs quickly log visit moments, while families receive reassuring updates and agencies gain proof of communication quality.
+
+Primary buyer:
+
+Home care agency owners / operators.
+
+Primary daily user:
+
+CNAs / caregivers.
+
+Secondary user:
+
+Adult children, spouses, siblings, and family decision-makers.
+
+Internal user:
+
+KairosCare team managing agencies, users, billing status, compliance, and support.
+
+This is B2B first. Agencies pay. Families are invited for free. CNAs are never charged.
+
+
+MVP Goal
+
+Build a working MVP that can demo the full loop:
+
+1. Agency creates a client/patient profile.
+2. Agency assigns a CNA to that client.
+3. CNA logs a visit update from mobile.
+4. CNA adds check-in, meal, mood, activity, note, and optional photo.
+5. Family receives a timeline update.
+6. Family can react or leave a short thank-you.
+7. Agency sees engagement metrics and client activity.
+8. KairosCare internal admin can manage all agencies and users.
+
+The MVP should feel real enough to pilot with 1–3 home care agencies.
+
+
+Core Product Requirements
+
+1. CNA Portal
+
+This should be mobile-first and extremely simple.
+
+CNAs are busy, often on phones, and may not want another app. The flow must be fast, friendly, and not feel like surveillance.
+
+Build:
+
+CNA Login
+
+CNA can log in and see assigned clients for the day.
+
+Today’s Visits
+
+Show a clean list:
+
+- Client name
+- Visit time
+- Address or city/state, if included
+- Status: Not started, In progress, Completed
+- Quick “Start Visit” button
+
+Start Visit Flow
+
+Once CNA starts visit, show a simple care update flow.
+
+Required log types:
+
+- Check-in
+- Meal / hydration
+- Mood
+- Activity
+- Medication reminder completed? Optional for MVP, not clinical med administration
+- General note
+- Photo upload
+- End-of-shift summary
+
+One-Tap Logging
+
+Make it extremely fast.
+
+Mood options:
+
+- Happy
+- Calm
+- Tired
+- Anxious
+- Not feeling well
+- Other
+
+Meal options:
+
+- Ate well
+- Ate some
+- Refused meal
+- Hydrated
+- Needs follow-up
+
+Activity options:
+
+- Conversation
+- Walk
+- Light exercise
+- Hygiene support
+- Meal prep
+- Medication reminder
+- Errands
+- Companionship
+- Other
+
+CNA-Friendly Features
+
+Add these so the CNA feels supported:
+
+- “Family thanked you” recognition
+- Shift summary card
+- Completed logs history
+- Optional private note to agency only
+- Clear explanation that the app is for family communication, not wage/hour tracking
+- No performance score visible to agency in v1
+
+Important UX copy:
+
+KairosCare helps families feel close and informed. This does not replace your agency’s official EVV, payroll, or timekeeping system.
+
+CNA Dashboard
+
+Show:
+
+- Today’s visits
+- Completed updates
+- Family reactions
+- Pending required logs
+- Simple profile
+
+
+2. Patient / Family Portal
+
+This is the emotional heart of the product.
+
+Families want reassurance: “Did Mom eat? Was she okay? Did someone show up? How was her mood?”
+
+Build:
+
+Family Login
+
+Family member logs in and sees their loved one’s care timeline.
+
+Family Timeline
+
+Timeline cards should include:
+
+- CNA name
+- Time of update
+- Type of update
+- Mood
+- Meal status
+- Activity
+- Note
+- Photo, if uploaded
+- Visit completed status
+
+Example card:
+
+Maria checked in at 10:04 AM
+Eleanor was calm and had oatmeal with tea. They talked and took a short walk around the living room.
+
+Push/Notification System
+
+For MVP, implement notification placeholders or in-app notifications.
+
+Rules:
+
+- Do not include PHI in notification body.
+- Use generic notification text.
+
+Examples:
+
+- “New KairosCare update available.”
+- “A care visit update was posted.”
+- “Your loved one’s timeline has a new update.”
+
+Family Reactions
+
+Allow family to:
+
+- Tap “Thank you”
+- Add short comment
+- Share note with agency
+- Invite another family member
+
+Multi-Family Access
+
+Support roles:
+
+- Primary family contact
+- Family viewer
+- Healthcare proxy / decision-maker
+- Billing contact, optional later
+
+Family Portal Dashboard
+
+Show:
+
+- Loved one profile
+- Today’s updates
+- Weekly mood trend
+- Meals/hydration summary
+- Recent photos
+- Agency contact info
+- Assigned CNA list, if agency allows
+
+Keep it warm, not clinical.
+
+
+3. CNA Agency Portal
+
+This is the buyer-facing portal.
+
+The agency needs to manage clients, CNAs, family members, assignments, and communication quality.
+
+Build:
+
+Agency Dashboard
+
+Show high-level KPIs:
+
+- Active clients
+- Active CNAs
+- Family members invited
+- Updates posted this week
+- Clients with no updates today
+- Family engagement score
+- Open family comments or concerns
+
+Client Management
+
+Agency can:
+
+- Create client profile
+- Edit client profile
+- Assign CNAs
+- Invite family members
+- View care timeline
+- See family engagement
+- Mark client active/inactive
+
+Client profile fields:
+
+- Full name
+- Date of birth, optional
+- Address
+- Care notes, optional
+- Emergency contact, optional
+- Family contacts
+- Assigned CNAs
+- Preferred language
+- Agency internal notes
+
+CNA Management
+
+Agency can:
+
+- Add CNA
+- Edit CNA
+- Assign CNA to clients
+- View CNA’s submitted updates
+- Deactivate CNA
+
+Do not include aggressive productivity rankings in v1. Avoid anything that makes this feel like surveillance.
+
+Family Management
+
+Agency can:
+
+- Invite family members
+- Resend invite
+- Remove access
+- Set permissions
+- View family engagement
+
+Schedule / Assignment Lite
+
+Do not build full scheduling or EVV. Just build lightweight assignments.
+
+Fields:
+
+- Client
+- CNA
+- Date
+- Start time
+- End time
+- Visit status
+
+Make clear that this is not replacing EVV.
+
+Agency Settings
+
+Include:
+
+- Agency name
+- Logo upload placeholder
+- Primary contact
+- Phone
+- Email
+- Default notification settings
+- Invite templates
+- Compliance acknowledgement
+
+
+4. KairosCare Internal Admin Backend
+
+This is for our team.
+
+Build a secure internal admin panel where KairosCare can manage all agency accounts.
+
+Admin Dashboard
+
+Show:
+
+- Total agencies
+- Active agencies
+- Active clients
+- Active CNAs
+- Family users
+- Updates posted
+- New agencies this month
+- Usage by agency
+
+Agency Management
+
+Admin can:
+
+- Create agency
+- Edit agency
+- Suspend agency
+- View agency users
+- View plan/status
+- View usage metrics
+
+User Management
+
+Admin can:
+
+- Search users
+- View role
+- Reset invite
+- Deactivate user
+- Change role
+
+Roles:
+
+- KairosCare Super Admin
+- KairosCare Support Admin
+- Agency Owner/Admin
+- Agency Staff
+- CNA
+- Family Primary Contact
+- Family Viewer
+
+Support / Audit
+
+Build:
+
+- Audit log for all sensitive actions
+- Login history
+- PHI access logs
+- Data export placeholder
+- Agency deletion / offboarding placeholder
+
+
+Compliance and Security Requirements
+
+This product touches healthcare-adjacent and likely PHI data, especially photos, mood, meal, and care notes. Build with HIPAA-aware architecture from the start.
+
+For MVP:
+
+- Role-based access control
+- Multi-tenant database model
+- Agency data isolation
+- Encrypted file storage
+- Signed photo URLs
+- No public media URLs
+- Audit logs for PHI access
+- No PHI in emails, SMS, or push notifications
+- Secure authentication
+- Strong password requirements
+- MFA-ready for agency/admin users
+- Clear consent language
+- BAA-ready vendor assumptions
+
+Add compliance disclaimers in the app where needed.
+
+Do not build:
+
+- Full EVV
+- Billing
+- Payroll
+- Medicare documentation
+- Clinical diagnosis tools
+- AI medical advice
+- Independent caregiver marketplace
+- Wearable integrations
+
+
+Suggested Tech Stack
+
+Use a practical, modern MVP stack.
+
+Preferred:
+
+- Next.js / React
+- TypeScript
+- Tailwind CSS
+- PostgreSQL
+- Prisma or Drizzle ORM
+- Supabase Auth or Clerk/Auth0-style auth, but design with HIPAA-readiness in mind
+- S3-compatible storage for photos
+- Role-based access control
+- Responsive web app first
+- Mobile-first CNA and family views
+- PWA support if possible
+
+If building native mobile is too heavy for MVP, make the CNA and family portals responsive/PWA first.
+
+Create clean mock data so the demo works instantly.
+
+
+Data Model
+
+Design the database around these entities:
+
+- Organization / Agency
+- User
+- Role
+- Client / Patient
+- FamilyMember
+- CNAProfile
+- Visit
+- CareUpdate
+- MoodLog
+- MealLog
+- ActivityLog
+- Photo
+- Comment
+- Reaction
+- Notification
+- AuditLog
+- Invite
+- SubscriptionPlan, placeholder
+- InternalAdminNote
+
+CareUpdate should support:
+
+- clientId
+- cnaId
+- agencyId
+- visitId
+- updateType
+- mood
+- mealStatus
+- activityType
+- note
+- photoUrl
+- visibility: family-visible or agency-only
+- timestamp
+- createdBy
+- audit fields
+
+
+UX and Design Direction
+
+No logo exists yet. Propose 3 brand directions first, then implement one.
+
+Brand name:
+
+KairosCare
+
+Possible brand concepts:
+
+1. Warm Trust
+   - Soft blue, warm cream, gentle green
+   - Feels safe, healthcare-friendly, calm
+
+2. Modern CareOS
+   - Clean white, navy, electric teal
+   - More SaaS, polished, enterprise-ready
+
+3. Family Reassurance
+   - Soft lavender, sky blue, warm coral
+   - More emotional, family-first, Brightwheel-inspired
+
+I recommend starting with:
+
+Warm Trust: navy + soft blue + warm off-white + gentle green accents.
+
+Visual vibe:
+
+- Clean cards
+- Large readable text
+- Mobile-first
+- Friendly icons
+- Reassuring microcopy
+- Rounded corners
+- Soft shadows
+- No cold hospital look
+- No childish design
+
+Create a simple temporary logo mark using text only:
+
+KairosCare
+Real-time care visibility
+
+Optional icon concept:
+
+- A soft clock/check-in symbol
+- A heart inside a home
+- A care timeline dot pattern
+- A sunrise/home motif
+
+Do not overbuild branding. Make it polished but MVP-fast.
+
+
+Required Pages
+
+Build these routes:
+
+Public / Marketing
+
+- /
+- /login
+- /request-demo
+
+Homepage sections:
+
+- Hero: “Real-time care visibility for home care agencies.”
+- Subheadline: “KairosCare helps CNAs share simple visit updates so families feel informed and agencies reduce communication-driven churn.”
+- CTA: Request Demo
+- How it works: CNA logs → Family sees → Agency tracks
+- Built for agencies, loved by families
+- Compliance-safe by design
+- Pilot program CTA
+
+Authenticated Portals
+
+- /cna
+- /cna/visits
+- /cna/visits/:id
+- /cna/history
+
+- /family
+- /family/timeline
+- /family/invite
+- /family/settings
+
+- /agency
+- /agency/clients
+- /agency/clients/:id
+- /agency/cnas
+- /agency/families
+- /agency/assignments
+- /agency/settings
+
+- /admin
+- /admin/agencies
+- /admin/users
+- /admin/audit
+- /admin/support
+
+
+Demo Seed Data
+
+Create sample data for:
+
+Agency:
+
+- BrightPath Home Care
+
+CNAs:
+
+- Maria Lopez
+- Angela Brooks
+- Denise Carter
+
+Clients:
+
+- Eleanor Williams
+- Robert Johnson
+- Margaret Chen
+
+Family Members:
+
+- Sarah Williams, daughter
+- David Williams, son
+- Lisa Johnson, spouse
+- Kevin Chen, son
+
+Example care updates:
+
+- Check-in
+- Breakfast eaten
+- Mood calm
+- Short walk
+- Photo uploaded
+- End-of-shift summary
+- Family thank-you reaction
+
+Make the demo feel realistic.
+
+
+Critical UX Rules
+
+The CNA flow must be the simplest part of the product.
+
+The CNA should be able to complete a useful update in under 30 seconds.
+
+Family timeline must be the most beautiful screen.
+
+Agency dashboard must show clear ROI value.
+
+Admin backend can be functional and plain.
+
+Do not make this feel like a clinical EHR.
+
+Do not make it feel like employee surveillance.
+
+Do not overbuild scheduling.
+
+Do not build EVV.
+
+Do not build billing.
+
+Do not build payroll.
+
+
+MVP Acceptance Criteria
+
+The MVP is successful when:
+
+1. I can log in as a CNA and submit a visit update.
+2. I can log in as a family member and see that update in a beautiful timeline.
+3. I can log in as an agency admin and see clients, CNAs, assignments, and engagement metrics.
+4. I can log in as KairosCare admin and manage agencies.
+5. Role permissions work.
+6. Seed data works.
+7. Photo upload is implemented or convincingly stubbed.
+8. Notifications are implemented or convincingly stubbed.
+9. The UI is polished enough to show to a pilot agency.
+10. The codebase is clean, documented, and ready for iteration.
+
+
+Build Process
+
+Before coding, give me:
+
+1. Product interpretation
+2. Recommended MVP scope
+3. Suggested stack
+4. Database schema
+5. User flows
+6. Brand direction
+7. Pages/routes list
+8. Any questions before implementation
+
+Then build the MVP.
+
+Work in phases:
+
+Phase 1
+
+Set up app, auth, layout, roles, database schema, and seed data.
+
+Phase 2
+
+Build CNA portal and care update flow.
+
+Phase 3
+
+Build family timeline and reactions.
+
+Phase 4
+
+Build agency dashboard and management tools.
+
+Phase 5
+
+Build KairosCare internal admin.
+
+Phase 6
+
+Polish UI, landing page, demo data, mobile responsiveness, and README.
+
+
+Final Deliverables
+
+Deliver:
+
+- Working MVP
+- Clean repo structure
+- Database schema
+- Seed script
+- README
+- Demo login credentials for each role
+- Known limitations
+- Suggested next build priorities
+- Questions for founders
+
+
+Founder Questions You Should Ask Me
+
+At the end, ask me these questions before finalizing:
+
+1. Are we starting with private-duty home care only, or Medicaid HCBS too?
+2. Are CNAs using their own phones or agency-provided devices?
+3. Do we need Spanish in v1?
+4. Should family members be able to message CNAs directly, or only agency staff?
+5. Should photos be required, optional, or agency-configurable?
+6. Should updates be real-time automatically, or should agency approve them before families see them?
+7. What states are we launching in first?
+8. Do we want KairosCare to support white-label agency branding?
+9. Should the first MVP be web/PWA only or native mobile too?
+10. What is the pilot goal: demo, live agency pilot, or investor prototype?
+
+Start by giving me the product plan, then build.
+
+
+Extra Suggestions
+
+Add Spanish support in v1, at least for CNA flows. The report specifically emphasizes caregiver adoption risk, and a lot of CNA/home care workflows will benefit from bilingual UX.
+
+Make agency approval optional. Some agencies may want real-time updates to families, while others may want staff to review posts first. Build a setting: “Auto-publish CNA updates” on/off.
+
+Avoid family-to-CNA direct messaging in v1 because it can overwhelm CNAs. Safer MVP: families can react, comment, or send a concern to the agency.
+
+Suggested temporary branding:
+
+KairosCare
+Tagline: Real-time care visibility for families and home care agencies.
+
+Colors: navy, soft sky blue, off-white, and gentle green.
+Tone: warm, calm, professional, not hospital-cold.

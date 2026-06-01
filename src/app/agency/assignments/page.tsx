@@ -14,7 +14,7 @@ export default function AgencyAssignments() {
       <ComingSoonCard
         phase="Phase 4"
         title="Schedule lite"
-        body="Date, start, end, status — enough to remind a caregiver who's on their list today. Full scheduling stays with your existing EVV system."
+        body="Date, start, end, status. Enough to remind a caregiver who's on their list today. Full scheduling stays with your existing EVV system."
       />
     </div>
   );

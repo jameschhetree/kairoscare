@@ -8,7 +8,7 @@ export default function AdminSupport() {
           Support
         </h1>
         <p className="mt-1 text-[color:var(--color-warm-ink)]">
-          Internal tools for the KairosCare team — onboarding, billing notes, and
+          Internal tools for the KairosCare team: onboarding, billing notes, and
           escalations.
         </p>
       </div>

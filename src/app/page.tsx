@@ -5,6 +5,7 @@ import {
   Camera,
   Cloud,
   ClipboardCheck,
+  Eye,
   HeartHandshake,
   Lock,
   MessageSquareText,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { TimelinePreview } from "@/components/timeline-preview";
+import { PhoneView } from "@/components/phone-view";
 import { WordmarkOnDark } from "@/components/wordmark";
 
 // Real copy throughout — no Lorem, no "[placeholder]", no AI-clean SaaS hero.
@@ -35,13 +37,14 @@ export default function Home() {
               </p>
 
               <h1 className="font-display text-[2.6rem] leading-[1.04] text-[color:var(--color-navy-900)] md:text-[3.6rem]">
-                Every visit, <span className="italic text-[color:var(--color-sky-700)]">finally</span> shared.
+                CNAs log visits in 30 seconds. Families know their parent is <span className="italic text-[color:var(--color-sky-700)]">safe</span>.
               </h1>
 
               <p className="mt-5 max-w-[520px] text-lg leading-relaxed text-[color:var(--color-warm-ink)]">
-                KairosCare helps caregivers share simple visit moments — a check-in,
-                a meal, a mood — so families feel close to the people they love and
-                home care agencies stop losing clients to silence.
+                KairosCare is the real-time care visibility layer home care agencies
+                have been promising families and never shipping. One-tap mood, meal,
+                and activity logging for caregivers. A warm timeline for families.
+                Engagement proof for agency operators.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -49,7 +52,14 @@ export default function Home() {
                   Request a demo
                   <ArrowUpRight size={16} />
                 </Link>
-                <Link href="/login" className="btn-secondary">
+                <Link href="/demo" className="btn-secondary">
+                  <Eye size={14} />
+                  See it in action
+                </Link>
+                <Link
+                  href="/login"
+                  className="text-sm text-[color:var(--color-warm-muted)] underline-offset-4 hover:text-[color:var(--color-navy-900)] hover:underline"
+                >
                   Caregiver / family log in
                 </Link>
               </div>
@@ -115,9 +125,33 @@ export default function Home() {
                 step="03"
                 icon={<CalendarDays size={20} />}
                 title="Agencies see proof"
-                body="Engagement dashboards, clients-without-updates flags, family sentiment — every signal a buyer will ask for."
+                body="Engagement dashboards, clients-without-updates flags, family sentiment. Every signal a buyer will ask for."
               />
             </div>
+          </div>
+
+          {/* Two-phone split-loop demo — sits inside How it works, off-center
+              column so the section reads editorial, not centered SaaS. */}
+          <div className="mt-20 grid gap-10 md:grid-cols-[0.38fr_0.62fr] md:items-center md:gap-12">
+            <div>
+              <p className="text-[0.74rem] font-medium uppercase tracking-[0.18em] text-[color:var(--color-sky-700)]">
+                A 60-second loop, on two phones
+              </p>
+              <h3 className="mt-3 font-display text-[1.6rem] leading-[1.1] text-[color:var(--color-navy-900)] md:text-[2rem]">
+                The CNA posts. The family feels it. The agency keeps the receipt.
+              </h3>
+              <p className="mt-4 text-[color:var(--color-warm-ink)]">
+                The same moment, captured once by Maria, lands on Sarah&apos;s phone in seconds. The
+                thank-you she sends back never reaches Maria&apos;s personal device. It surfaces in the agency portal,
+                where it belongs.
+              </p>
+              <Link href="/demo" className="mt-6 inline-flex items-center gap-1.5 text-[0.92rem] font-medium text-[color:var(--color-navy-900)] underline-offset-4 hover:underline">
+                <Eye size={14} className="text-[color:var(--color-sky-700)]" />
+                Try the interactive CNA portal
+                <ArrowUpRight size={13} />
+              </Link>
+            </div>
+            <PhoneView />
           </div>
         </div>
       </section>
@@ -134,7 +168,7 @@ export default function Home() {
                 The communication layer agencies keep promising and never ship.
               </h2>
               <p className="mt-5 max-w-[520px] text-[color:var(--color-warm-ink)]">
-                Most home care churn isn&apos;t about the care — it&apos;s about the silence.
+                Most home care churn isn&apos;t about the care. It&apos;s about the silence.
                 KairosCare gives operators the receipts: an auditable record of
                 every reassurance the family received, every reaction they sent
                 back, and which clients are at risk of going quiet.
@@ -164,12 +198,12 @@ export default function Home() {
                 The reassurance you keep checking your phone for.
               </h2>
               <p className="mt-5 max-w-[520px] text-[color:var(--color-warm-ink)]">
-                A timeline of small, honest moments — what Mom ate, how she felt,
+                A timeline of small, honest moments. What Mom ate, how she felt,
                 what she did today. Send a thank-you. Loop in a sibling. Talk to
                 the agency, not the caregiver, when something needs follow-up.
               </p>
               <ul className="mt-6 space-y-3 text-[0.96rem] text-[color:var(--color-warm-ink)]">
-                <BulletRow>Primary, viewer, and healthcare proxy roles — invite the whole family.</BulletRow>
+                <BulletRow>Primary, viewer, and healthcare proxy roles. Invite the whole family.</BulletRow>
                 <BulletRow>Photos optional but encouraged. Stored encrypted, signed URLs only.</BulletRow>
                 <BulletRow>No PHI in push notifications. Just &quot;a new update is ready&quot;.</BulletRow>
                 <BulletRow>Free for families, always.</BulletRow>
@@ -195,7 +229,7 @@ export default function Home() {
               </h2>
               <p className="mt-5 max-w-[480px] text-[color:var(--color-cream-300)]">
                 Photos, mood notes, and meal logs are PHI. KairosCare is built like
-                they are — encrypted storage, signed URLs, agency-scoped row level
+                they are: encrypted storage, signed URLs, agency-scoped row level
                 security, and an audit log on every PHI read and write. BAA-ready
                 vendor stack from day one.
               </p>
@@ -204,7 +238,7 @@ export default function Home() {
               <ComplianceCard
                 icon={<Lock size={18} />}
                 title="Encrypted by default"
-                body="All photo uploads land in an encrypted Supabase Storage bucket. No public URLs — signed access only."
+                body="All photo uploads land in an encrypted Supabase Storage bucket. No public URLs. Signed access only."
               />
               <ComplianceCard
                 icon={<ShieldCheck size={18} />}
@@ -214,12 +248,12 @@ export default function Home() {
               <ComplianceCard
                 icon={<MessageSquareText size={18} />}
                 title="No PHI in messages"
-                body="Push, SMS, and email notifications use generic language — 'a care update is ready' — never names or details."
+                body="Push, SMS, and email notifications use generic language: 'a care update is ready.' Never names or details."
               />
               <ComplianceCard
                 icon={<Camera size={18} />}
                 title="Auditable photo trail"
-                body="Every photo viewed, every update read, every comment escalated — logged with actor, timestamp, and scope."
+                body="Every photo viewed, every update read, every comment escalated. Logged with actor, timestamp, and scope."
               />
             </div>
           </div>
@@ -275,7 +309,7 @@ export default function Home() {
             <p className="mt-4 text-sm leading-relaxed">
               Real-time care visibility for families and home care agencies.
               KairosCare does not replace EVV, payroll, or clinical documentation
-              systems — it works alongside them.
+              systems. It works alongside them.
             </p>
           </div>
           <div className="grid gap-8 text-sm md:grid-cols-3 md:text-right">
@@ -469,7 +503,7 @@ function FamilyMockup() {
           <p className="font-medium text-[color:var(--color-navy-900)]">
             &quot;Mom ate well today and laughed when I played the old records.&quot;
           </p>
-          <p className="text-[color:var(--color-warm-muted)]">— Maria, end-of-shift note</p>
+          <p className="text-[color:var(--color-warm-muted)]">Maria, end-of-shift note</p>
         </div>
       </div>
     </div>

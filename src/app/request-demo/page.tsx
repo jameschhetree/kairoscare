@@ -33,7 +33,7 @@ export default async function RequestDemoPage({
           {success ? (
             <div className="card mt-8 p-6">
               <p className="font-display text-[1.1rem] font-semibold text-[color:var(--color-navy-900)]">
-                Thanks — we&apos;ve got it.
+                Thanks, we&apos;ve got it.
               </p>
               <p className="mt-2 text-[color:var(--color-warm-ink)]">
                 You&apos;ll hear back from our team within one business day. If

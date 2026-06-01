@@ -14,7 +14,7 @@ export default function FamilyTimeline() {
       <ComingSoonCard
         phase="Phase 3"
         title="Photo-rich visit feed"
-        body="Each card shows the caregiver, time, mood, meal, activity, and any photo — pulled live from CareUpdate rows where visibility = FamilyVisible and isPublished = true."
+        body="Each card shows the caregiver, time, mood, meal, activity, and any photo. Pulled live from CareUpdate rows where visibility = FamilyVisible and isPublished = true."
       />
     </div>
   );

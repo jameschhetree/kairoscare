@@ -4,14 +4,15 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { setSession } from "@/lib/session";
+import { setSession, clearSession } from "@/lib/session";
 import { recordAudit } from "@/lib/audit";
 import { pickPrimaryRole, portalForRole } from "@/lib/roles";
+import { clearDemoCookie } from "@/lib/demo-seed";
 
 // Phase-1 login. The seed stashes a bcrypt hash inside AuditLog.payload for
 // each user (action `seed.user.created`). We look that up here, verify, and
 // hand back a signed cookie. Phase 2 (Supabase Auth) replaces this entire
-// action — the rest of the codebase calls `getSessionUser()` and won't change.
+// action. The rest of the codebase calls `getSessionUser()` and won't change.
 
 export async function loginAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -27,8 +28,6 @@ export async function loginAction(formData: FormData) {
     redirect("/login?error=invalid");
   }
 
-  // Read the hash from the seed audit row. (Schema-only Phase-1 shim — DO NOT
-  // copy this pattern in production. Real Supabase Auth ships in Phase 2.)
   const seedRow = await prisma.auditLog.findFirst({
     where: {
       entityType: "User",
@@ -67,7 +66,7 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function logoutAction() {
-  const { clearSession } = await import("@/lib/session");
   await clearSession();
+  await clearDemoCookie();
   redirect("/");
 }

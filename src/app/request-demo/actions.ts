@@ -28,7 +28,7 @@ export async function submitDemoRequest(formData: FormData) {
         from,
         to: ["hello@kairoscare.com"],
         replyTo: email,
-        subject: `KairosCare pilot request — ${agency}`,
+        subject: `KairosCare pilot request: ${agency}`,
         text: [
           `Name:    ${fullName}`,
           `Agency:  ${agency}`,

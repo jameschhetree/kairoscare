@@ -15,9 +15,9 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-  title: "KairosCare — Real-time care visibility for home care agencies",
+  title: "KairosCare | Real-time care visibility for home care agencies",
   description:
-    "KairosCare gives families real-time visibility into their loved one's home care visits — and helps agencies reduce communication-driven churn.",
+    "KairosCare gives families real-time visibility into their loved one's home care visits and helps agencies reduce communication-driven churn.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   openGraph: {
     title: "KairosCare",

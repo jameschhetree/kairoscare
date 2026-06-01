@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Building2, Shield, Users, Heart } from "lucide-react";
 import { loginAction } from "./actions";
+import { demoLoginAction } from "./demo-actions";
 import { WordmarkLight } from "@/components/wordmark";
 
-// Phase-1 demo login. Supabase Auth replaces this in Phase 2 — the route +
-// the loginAction signature remain identical so the swap is contained.
+// Login page with Quick Demo Access buttons above the email form.
+// Demo buttons bypass password auth entirely for frictionless demo flow.
 
 export default async function LoginPage({
   searchParams,
@@ -29,11 +31,98 @@ export default async function LoginPage({
             Log in to KairosCare
           </h1>
           <p className="mt-3 max-w-[440px] text-[color:var(--color-warm-ink)]">
-            Caregivers, families, agency staff, and KairosCare team — one place,
-            same door. We&apos;ll route you to the right home.
+            Caregivers, families, agency staff, and KairosCare team. One place,
+            same door. We route you to the right portal.
           </p>
 
+          {/* QUICK DEMO ACCESS */}
+          <div className="mt-8 rounded-[var(--radius-lg)] border border-[color:var(--color-sky-300)]/40 bg-gradient-to-br from-[color:var(--color-sky-100)]/40 to-[color:var(--color-cream-50)] p-6">
+            <p className="mb-1 text-[0.76rem] font-medium uppercase tracking-[0.18em] text-[color:var(--color-sky-700)]">
+              Quick Demo Access
+            </p>
+            <p className="mb-5 text-[0.88rem] text-[color:var(--color-warm-ink)]">
+              Jump into any portal instantly. No password needed.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <form action={demoLoginAction}>
+                <input type="hidden" name="demo_role" value="agency" />
+                <button
+                  type="submit"
+                  className="group flex w-full flex-col items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 text-left transition-all hover:border-[color:var(--color-sky-500)] hover:shadow-[var(--shadow-soft)]"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--color-navy-900)] text-[color:var(--color-cream-50)]">
+                    <Building2 size={16} />
+                  </span>
+                  <span className="font-display text-[1rem] font-semibold text-[color:var(--color-navy-900)]">
+                    Enter as Agency
+                  </span>
+                  <span className="text-[0.78rem] text-[color:var(--color-warm-muted)]">
+                    Bright Care Home Health (DMV)
+                  </span>
+                </button>
+              </form>
+
+              <form action={demoLoginAction}>
+                <input type="hidden" name="demo_role" value="admin" />
+                <button
+                  type="submit"
+                  className="group flex w-full flex-col items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 text-left transition-all hover:border-[color:var(--color-sky-500)] hover:shadow-[var(--shadow-soft)]"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--color-sky-700)] text-[color:var(--color-cream-50)]">
+                    <Shield size={16} />
+                  </span>
+                  <span className="font-display text-[1rem] font-semibold text-[color:var(--color-navy-900)]">
+                    Enter as KairosCare Admin
+                  </span>
+                  <span className="text-[0.78rem] text-[color:var(--color-warm-muted)]">
+                    Internal backoffice
+                  </span>
+                </button>
+              </form>
+
+              <form action={demoLoginAction}>
+                <input type="hidden" name="demo_role" value="family" />
+                <button
+                  type="submit"
+                  className="group flex w-full flex-col items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 text-left transition-all hover:border-[color:var(--color-sky-500)] hover:shadow-[var(--shadow-soft)]"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--color-positive)] text-[color:var(--color-cream-50)]">
+                    <Heart size={16} />
+                  </span>
+                  <span className="font-display text-[1rem] font-semibold text-[color:var(--color-navy-900)]">
+                    Enter as Family
+                  </span>
+                  <span className="text-[0.78rem] text-[color:var(--color-warm-muted)]">
+                    Eleanor Williams&apos; daughter
+                  </span>
+                </button>
+              </form>
+
+              <form action={demoLoginAction}>
+                <input type="hidden" name="demo_role" value="cna" />
+                <button
+                  type="submit"
+                  className="group flex w-full flex-col items-start gap-2 rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 text-left transition-all hover:border-[color:var(--color-sky-500)] hover:shadow-[var(--shadow-soft)]"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--color-mood-calm)] text-[color:var(--color-cream-50)]">
+                    <Users size={16} />
+                  </span>
+                  <span className="font-display text-[1rem] font-semibold text-[color:var(--color-navy-900)]">
+                    Enter as CNA
+                  </span>
+                  <span className="text-[0.78rem] text-[color:var(--color-warm-muted)]">
+                    Caregiver Maria Lopez
+                  </span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* STANDARD LOGIN FORM */}
           <div className="card mt-8 p-6">
+            <p className="mb-4 text-[0.76rem] font-medium uppercase tracking-[0.18em] text-[color:var(--color-warm-muted)]">
+              Or sign in with credentials
+            </p>
             <form action={loginAction} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-[color:var(--color-navy-900)]">
@@ -60,7 +149,7 @@ export default async function LoginPage({
                   autoComplete="current-password"
                   required
                   className="mt-1 w-full rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white px-3 py-2.5 text-[0.95rem] outline-none focus:border-[color:var(--color-sky-700)] focus:ring-2 focus:ring-[color:var(--color-sky-300)]"
-                  placeholder="••••••••"
+                  placeholder="Demo2026!"
                 />
               </div>
 
@@ -101,13 +190,13 @@ export default async function LoginPage({
             />
             <DemoCred
               email="sarah.williams@demo.com"
-              role="Family — primary"
+              role="Family (primary)"
               note="Sees Eleanor's timeline"
             />
             <DemoCred
               email="owner@brightpath.demo"
               role="Agency owner"
-              note="BrightPath dashboard"
+              note="Bright Care Home Health dashboard"
             />
             <DemoCred
               email="admin@kairoscare.com"
@@ -126,7 +215,7 @@ function DemoCred({ email, role, note }: { email: string; role: string; note: st
     <li className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-[color:var(--color-cream-50)] p-3">
       <p className="font-mono text-[0.84rem] text-[color:var(--color-navy-900)]">{email}</p>
       <p className="text-[0.78rem] text-[color:var(--color-warm-muted)]">
-        {role} · {note}
+        {role} / {note}
       </p>
     </li>
   );
