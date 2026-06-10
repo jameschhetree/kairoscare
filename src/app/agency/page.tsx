@@ -2,13 +2,104 @@ import {
   getDemoRole,
   demoCounts,
   demoAgency,
-  atRiskClients,
+  atRiskClients as demoAtRiskClients,
   sentimentTrend,
   coachingInsights,
   recentFamilySignals,
 } from "@/lib/demo-seed";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
+
+// Daily improvement 2026-06-10 — At-risk clients panel previously rendered demo
+// data even for real agency owners. Now the real-DB path derives at-risk from
+// two signals over the last 14 days, scoring each client and surfacing the
+// top 4:
+//   1. Concentration of Anxious + Unwell moods in recent CareUpdates
+//   2. Visit staleness (no visit in 14+ days)
+// Severity tier comes from the score.
+
+type AtRiskRow = {
+  clientName: string;
+  reason: string;
+  severity: "low" | "medium" | "high";
+  daysSinceFlag: number;
+};
+
+async function computeAtRiskClients(agencyId: string): Promise<AtRiskRow[]> {
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+  const clients = await prisma.client.findMany({
+    where: { agencyId },
+    select: { id: true, fullName: true },
+  });
+  if (clients.length === 0) return [];
+  const clientIds = clients.map((c) => c.id);
+
+  const [moods, latestVisits] = await Promise.all([
+    prisma.careUpdate.findMany({
+      where: {
+        clientId: { in: clientIds },
+        timestamp: { gte: fourteenDaysAgo },
+        mood: { in: ["Anxious", "Unwell"] },
+      },
+      select: { clientId: true, mood: true, timestamp: true },
+    }),
+    prisma.visit.findMany({
+      where: { clientId: { in: clientIds } },
+      select: { clientId: true, scheduledStart: true },
+      orderBy: { scheduledStart: "desc" },
+      take: 500,
+    }),
+  ]);
+
+  const moodCounts = new Map<string, { anxious: number; unwell: number; lastBadDay: Date | null }>();
+  for (const u of moods) {
+    if (!u.mood) continue;
+    const m = moodCounts.get(u.clientId) ?? { anxious: 0, unwell: 0, lastBadDay: null };
+    if (u.mood === "Anxious") m.anxious++;
+    if (u.mood === "Unwell") m.unwell++;
+    if (!m.lastBadDay || u.timestamp > m.lastBadDay) m.lastBadDay = u.timestamp;
+    moodCounts.set(u.clientId, m);
+  }
+  const lastVisitByClient = new Map<string, Date>();
+  for (const v of latestVisits) {
+    if (!lastVisitByClient.has(v.clientId)) lastVisitByClient.set(v.clientId, v.scheduledStart);
+  }
+
+  const now = Date.now();
+  const scored = clients
+    .map((c) => {
+      const m = moodCounts.get(c.id) ?? { anxious: 0, unwell: 0, lastBadDay: null };
+      const lastVisit = lastVisitByClient.get(c.id) ?? null;
+      const daysSinceVisit = lastVisit
+        ? Math.floor((now - lastVisit.getTime()) / 86400000)
+        : 999;
+      // 2 points per unwell, 1 per anxious, 3 if 14+ days no visit, 1 if 7-13 days
+      const moodScore = m.unwell * 2 + m.anxious;
+      const staleScore = daysSinceVisit >= 14 ? 3 : daysSinceVisit >= 7 ? 1 : 0;
+      const score = moodScore + staleScore;
+      let reason = "";
+      if (m.unwell > 0) reason = `${m.unwell} Unwell update${m.unwell === 1 ? "" : "s"} in 14d`;
+      else if (m.anxious >= 2) reason = `${m.anxious} Anxious updates in 14d`;
+      else if (daysSinceVisit >= 14) reason = `No visit in ${daysSinceVisit}d`;
+      else if (m.anxious === 1) reason = "1 Anxious update in 14d";
+      else if (daysSinceVisit >= 7) reason = `Last visit ${daysSinceVisit}d ago`;
+      const lastBadDay = m.lastBadDay;
+      const daysSinceFlag = lastBadDay
+        ? Math.max(0, Math.floor((now - lastBadDay.getTime()) / 86400000))
+        : daysSinceVisit >= 7 ? Math.min(daysSinceVisit, 14) : 0;
+      const severity: AtRiskRow["severity"] =
+        score >= 5 ? "high" : score >= 3 ? "medium" : "low";
+      return { clientId: c.id, clientName: c.fullName, reason, severity, daysSinceFlag, score };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(({ clientId: _ci, score: _s, ...rest }) => rest);
+
+  return scored;
+}
 import {
   AlertTriangle,
   TrendingUp,
@@ -28,6 +119,7 @@ export default async function AgencyHome() {
   let agencyName: string;
   let reactionCount: number;
   let commentCount: number;
+  let atRiskClients: AtRiskRow[];
 
   if (isDemo) {
     clientCount = demoCounts.clients;
@@ -37,10 +129,11 @@ export default async function AgencyHome() {
     agencyName = demoAgency.name;
     reactionCount = demoCounts.reactions;
     commentCount = demoCounts.comments;
+    atRiskClients = demoAtRiskClients as AtRiskRow[];
   } else {
     const user = await getSessionUser();
     const agencyId = user?.agencyId ?? "";
-    const [cc, cn, cu, fc, agency, rc, cmc] = await Promise.all([
+    const [cc, cn, cu, fc, agency, rc, cmc, ar] = await Promise.all([
       prisma.client.count({ where: { agencyId } }),
       prisma.cNAProfile.count({ where: { agencyId } }),
       prisma.careUpdate.count({
@@ -50,6 +143,7 @@ export default async function AgencyHome() {
       prisma.organization.findUnique({ where: { id: agencyId } }),
       prisma.reaction.count({ where: { careUpdate: { agencyId } } }),
       prisma.comment.count({ where: { careUpdate: { agencyId } } }),
+      computeAtRiskClients(agencyId),
     ]);
     clientCount = cc;
     cnaCount = cn;
@@ -58,6 +152,7 @@ export default async function AgencyHome() {
     agencyName = agency?.name ?? "Your agency";
     reactionCount = rc;
     commentCount = cmc;
+    atRiskClients = ar;
   }
 
   return (
@@ -99,7 +194,11 @@ export default async function AgencyHome() {
               </h3>
             </div>
             <div className="space-y-4">
-              {atRiskClients.map((client) => (
+              {atRiskClients.length === 0 ? (
+                <p className="text-[0.82rem] text-[color:var(--color-warm-muted)]">
+                  No risk signals in the last 14 days. Anxious / Unwell moods and stale-visit alerts will surface here.
+                </p>
+              ) : atRiskClients.map((client) => (
                 <div key={client.clientName} className="border-l-2 pl-3" style={{
                   borderColor: client.severity === "high"
                     ? "var(--color-mood-unwell)"
@@ -108,7 +207,7 @@ export default async function AgencyHome() {
                     : "var(--color-mood-tired)"
                 }}>
                   <p className="text-[0.9rem] font-medium text-[color:var(--color-navy-900)]">{client.clientName}</p>
-                  <p className="mt-0.5 text-[0.82rem] text-[color:var(--color-warm-ink)]">Sentiment AI flagged: {client.reason}</p>
+                  <p className="mt-0.5 text-[0.82rem] text-[color:var(--color-warm-ink)]">Signal: {client.reason}</p>
                   <p className="mt-0.5 text-[0.74rem] text-[color:var(--color-warm-muted)]">{client.daysSinceFlag}d ago</p>
                 </div>
               ))}
