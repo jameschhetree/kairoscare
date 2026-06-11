@@ -3,12 +3,61 @@ import {
   demoCounts,
   demoAgency,
   atRiskClients as demoAtRiskClients,
-  sentimentTrend,
+  sentimentTrend as demoSentimentTrend,
   coachingInsights,
   recentFamilySignals,
+  type SentimentDay,
 } from "@/lib/demo-seed";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
+
+// Daily improvement 2026-06-11 — Sentiment trends panel was rendering demo
+// data even for real agency owners. Now derived per agency from CareUpdates in
+// the last 14 days, grouped by day, counting Happy / Calm / Tired / Anxious
+// moods so the existing stacked-bar component reads real mood distribution.
+
+async function computeSentimentTrend(agencyId: string): Promise<SentimentDay[]> {
+  const now = new Date();
+  const days: SentimentDay[] = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    days.push({
+      label: i === 0 ? "Today" : `D-${i}`,
+      happy: 0,
+      calm: 0,
+      tired: 0,
+      anxious: 0,
+    });
+  }
+  const fourteenDaysAgo = new Date(now);
+  fourteenDaysAgo.setHours(0, 0, 0, 0);
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 13);
+
+  const rows = await prisma.careUpdate.findMany({
+    where: {
+      agencyId,
+      timestamp: { gte: fourteenDaysAgo },
+      mood: { in: ["Happy", "Calm", "Tired", "Anxious"] },
+    },
+    select: { mood: true, timestamp: true },
+    take: 2000,
+  });
+
+  const startMs = fourteenDaysAgo.getTime();
+  for (const r of rows) {
+    if (!r.mood) continue;
+    const idx = Math.floor((r.timestamp.getTime() - startMs) / 86400000);
+    if (idx < 0 || idx >= days.length) continue;
+    const bucket = days[idx];
+    if (r.mood === "Happy") bucket.happy++;
+    else if (r.mood === "Calm") bucket.calm++;
+    else if (r.mood === "Tired") bucket.tired++;
+    else if (r.mood === "Anxious") bucket.anxious++;
+  }
+  return days;
+}
 
 // Daily improvement 2026-06-10 — At-risk clients panel previously rendered demo
 // data even for real agency owners. Now the real-DB path derives at-risk from
@@ -120,6 +169,7 @@ export default async function AgencyHome() {
   let reactionCount: number;
   let commentCount: number;
   let atRiskClients: AtRiskRow[];
+  let sentimentTrend: SentimentDay[];
 
   if (isDemo) {
     clientCount = demoCounts.clients;
@@ -130,10 +180,11 @@ export default async function AgencyHome() {
     reactionCount = demoCounts.reactions;
     commentCount = demoCounts.comments;
     atRiskClients = demoAtRiskClients as AtRiskRow[];
+    sentimentTrend = demoSentimentTrend;
   } else {
     const user = await getSessionUser();
     const agencyId = user?.agencyId ?? "";
-    const [cc, cn, cu, fc, agency, rc, cmc, ar] = await Promise.all([
+    const [cc, cn, cu, fc, agency, rc, cmc, ar, st] = await Promise.all([
       prisma.client.count({ where: { agencyId } }),
       prisma.cNAProfile.count({ where: { agencyId } }),
       prisma.careUpdate.count({
@@ -144,6 +195,7 @@ export default async function AgencyHome() {
       prisma.reaction.count({ where: { careUpdate: { agencyId } } }),
       prisma.comment.count({ where: { careUpdate: { agencyId } } }),
       computeAtRiskClients(agencyId),
+      computeSentimentTrend(agencyId),
     ]);
     clientCount = cc;
     cnaCount = cn;
@@ -153,6 +205,7 @@ export default async function AgencyHome() {
     reactionCount = rc;
     commentCount = cmc;
     atRiskClients = ar;
+    sentimentTrend = st;
   }
 
   return (
@@ -223,10 +276,15 @@ export default async function AgencyHome() {
             </div>
             <p className="mb-3 text-[0.82rem] text-[color:var(--color-warm-ink)]">Visit mood distribution, last 14 days</p>
             <div className="flex items-end gap-1" style={{ height: 100 }}>
-              {sentimentTrend.map((day) => {
-                const total = day.happy + day.calm + day.tired + day.anxious;
-                const max = 7;
-                return (
+              {(() => {
+                const dailyMax = Math.max(
+                  7,
+                  ...sentimentTrend.map((d) => d.happy + d.calm + d.tired + d.anxious),
+                );
+                return sentimentTrend.map((day) => {
+                  const total = day.happy + day.calm + day.tired + day.anxious;
+                  const max = dailyMax;
+                  return (
                   <div key={day.label} className="flex flex-1 flex-col items-center gap-0.5">
                     <div className="flex w-full flex-col gap-px" style={{ height: `${(total / max) * 100}%` }}>
                       {day.happy > 0 && <div className="rounded-t-[2px]" style={{ flex: day.happy, background: "var(--color-mood-happy)" }} />}
@@ -236,7 +294,8 @@ export default async function AgencyHome() {
                     </div>
                   </div>
                 );
-              })}
+                });
+              })()}
             </div>
             <div className="mt-2 flex justify-between text-[0.64rem] text-[color:var(--color-warm-muted)]">
               <span>14 days ago</span>
