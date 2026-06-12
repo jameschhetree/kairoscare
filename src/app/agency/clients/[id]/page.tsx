@@ -4,6 +4,7 @@ import { getDemoRole, demoClients } from "@/lib/demo-seed";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
 import { recordAudit } from "@/lib/audit";
+import { EndAssignmentButton } from "./EndAssignmentButton";
 
 // Daily improvement 2026-06-07 — agency client detail previously stopped at
 // care notes / emergency contact / caregivers / family. Now there's a Recent
@@ -134,9 +135,34 @@ export default async function AgencyClientDetail({
         </div>
         <div className="card p-5">
           <p className="text-[0.78rem] uppercase tracking-[0.18em] text-[color:var(--color-warm-muted)]">Assigned caregivers</p>
-          <ul className="mt-2 space-y-1 text-[color:var(--color-warm-ink)]">
-            {client.cnaAssignments.map((a) => <li key={a.id}>{a.cna.user.fullName}</li>)}
-          </ul>
+          {client.cnaAssignments.length === 0 ? (
+            <p className="mt-2 text-[0.86rem] text-[color:var(--color-warm-muted)]">No caregivers currently assigned.</p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {client.cnaAssignments.map((a) => {
+                const ended = a.endDate !== null;
+                return (
+                  <li key={a.id} className="flex items-center justify-between gap-3">
+                    <span className={ended ? "text-[color:var(--color-warm-muted)] line-through" : "text-[color:var(--color-warm-ink)]"}>
+                      {a.cna.user.fullName}
+                      {ended && (
+                        <span className="ml-2 text-[0.7rem] uppercase tracking-[0.16em] text-[color:var(--color-warm-muted)] no-underline">
+                          ended {new Date(a.endDate as Date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </span>
+                      )}
+                    </span>
+                    {!ended && (
+                      <EndAssignmentButton
+                        assignmentId={a.id}
+                        clientId={client.id}
+                        cnaName={a.cna.user.fullName}
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
         <div className="card p-5">
           <p className="text-[0.78rem] uppercase tracking-[0.18em] text-[color:var(--color-warm-muted)]">Family</p>
