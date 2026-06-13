@@ -108,13 +108,26 @@ async function loadUpdatesForFamilyUserId(userId: string): Promise<TimelineUpdat
   return loadUpdatesForClientIds(clientIds);
 }
 
-async function loadDemoUpdates(): Promise<TimelineUpdate[]> {
-  // Demo mode: family seed defines only "Eleanor Williams" — match by fullName.
-  const clients = await prisma.client.findMany({
-    where: { fullName: "Eleanor Williams" },
-    select: { id: true },
-  });
-  return loadUpdatesForClientIds(clients.map((c) => c.id));
+function buildDemoUpdates(): TimelineUpdate[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const h = (day: Date, hours: number, mins: number) => {
+    const d = new Date(day);
+    d.setHours(hours, mins, 0, 0);
+    return d;
+  };
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  return [
+    { id: "tu-1", updateType: "CheckIn", mood: "Happy", mealStatus: null, activityType: null, note: "Mom was sitting in her usual chair by the window. Calm and smiling.", photoStoragePath: null, timestamp: h(today, 10, 4), clientName: "Eleanor Williams", cnaName: "Maria Lopez" },
+    { id: "tu-2", updateType: "Meal", mood: null, mealStatus: "Ate most", activityType: null, note: "Oatmeal with blueberries and herbal tea. Ate most of the bowl.", photoStoragePath: null, timestamp: h(today, 10, 29), clientName: "Eleanor Williams", cnaName: "Maria Lopez" },
+    { id: "tu-3", updateType: "Activity", mood: "Calm", mealStatus: null, activityType: "Music", note: "Listened to Etta James, short walk to the kitchen, talked about the kids.", photoStoragePath: null, timestamp: h(today, 11, 15), clientName: "Eleanor Williams", cnaName: "Maria Lopez" },
+    { id: "tu-4", updateType: "EndOfShift", mood: "Happy", mealStatus: null, activityType: null, note: "Good visit. Mom was in great spirits today. Left her watching her favorite show.", photoStoragePath: null, timestamp: h(today, 11, 48), clientName: "Eleanor Williams", cnaName: "Maria Lopez" },
+    { id: "tu-5", updateType: "CheckIn", mood: "Calm", mealStatus: null, activityType: null, note: "Quiet morning. Mom was dozing in her recliner when I arrived.", photoStoragePath: null, timestamp: h(yesterday, 9, 12), clientName: "Eleanor Williams", cnaName: "Maria Lopez" },
+    { id: "tu-6", updateType: "Meal", mood: null, mealStatus: "Ate half", activityType: null, note: "Toast with jam and decaf coffee. Ate about half.", photoStoragePath: null, timestamp: h(yesterday, 9, 45), clientName: "Eleanor Williams", cnaName: "Maria Lopez" },
+    { id: "tu-7", updateType: "Mood", mood: "Tired", mealStatus: null, activityType: null, note: "Seemed a bit tired after lunch. Took a nap around noon.", photoStoragePath: null, timestamp: h(yesterday, 12, 10), clientName: "Eleanor Williams", cnaName: "Carlos Rivera" },
+  ];
 }
 
 function groupByDay(updates: TimelineUpdate[]): { dayLabel: string; entries: TimelineUpdate[] }[] {
@@ -194,7 +207,7 @@ export default async function FamilyTimeline() {
   let viewerName = "";
   if (isDemo) {
     viewerName = getDemoUser("family").fullName.split(" ")[0];
-    updates = await loadDemoUpdates();
+    updates = buildDemoUpdates();
   } else {
     const user = await getSessionUser();
     if (user?.id) {

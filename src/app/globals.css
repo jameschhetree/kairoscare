@@ -181,6 +181,14 @@ html, body {
   animation: demoPop 320ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
+@keyframes slideIn {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
+}
+.animate-slide-in {
+  animation: slideIn 250ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
 /* =========================================================================
    Phone view — two-phone split loop on the marketing landing.
    Bezel + notch + home-indicator pattern adapted from CompetitorIQ

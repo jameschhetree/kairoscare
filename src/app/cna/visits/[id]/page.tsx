@@ -55,25 +55,30 @@ export default async function CnaVisitDetail({
 }) {
   const { id } = await params;
 
-  const visit = await prisma.visit.findUnique({
-    where: { id },
-    include: {
-      client: { select: { fullName: true, address: true, state: true } },
-      careUpdates: {
-        orderBy: { timestamp: "asc" },
-        select: {
-          id: true,
-          updateType: true,
-          mood: true,
-          mealStatus: true,
-          activityType: true,
-          note: true,
-          photoStoragePath: true,
-          timestamp: true,
+  let visit;
+  try {
+    visit = await prisma.visit.findUnique({
+      where: { id },
+      include: {
+        client: { select: { fullName: true, address: true, state: true } },
+        careUpdates: {
+          orderBy: { timestamp: "asc" },
+          select: {
+            id: true,
+            updateType: true,
+            mood: true,
+            mealStatus: true,
+            activityType: true,
+            note: true,
+            photoStoragePath: true,
+            timestamp: true,
+          },
         },
       },
-    },
-  });
+    });
+  } catch {
+    visit = null;
+  }
 
   if (!visit) {
     return (

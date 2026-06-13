@@ -2,6 +2,7 @@ import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
 import { ROLE_LABEL } from "@/lib/roles";
 import { WordmarkLight } from "./wordmark";
+import { MobileNav } from "./mobile-nav";
 import type { SessionUser } from "@/lib/session";
 
 export type NavItem = { href: string; label: string };
@@ -22,8 +23,9 @@ export function AppShell({
   return (
     <div className="min-h-screen surface-grain">
       <header className="border-b border-[color:var(--color-warm-hairline)] bg-white/70 backdrop-blur">
-        <div className="mx-auto flex max-w-[1280px] items-center justify-between px-6 py-4 md:px-10">
-          <div className="flex items-center gap-6">
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-3 md:px-10 md:py-4">
+          <div className="flex items-center gap-3 md:gap-6">
+            <MobileNav nav={nav} portalLabel={portalLabel} />
             <Link href="/">
               <WordmarkLight />
             </Link>
@@ -31,12 +33,12 @@ export function AppShell({
               {portalLabel}
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden text-right sm:block">
               <p className="text-sm font-medium text-[color:var(--color-navy-900)]">{user.fullName}</p>
               <p className="text-[0.74rem] text-[color:var(--color-warm-muted)]">{user.email}</p>
             </div>
-            <span className="role-badge" data-testid="role-badge">{roleLabel}</span>
+            <span className="role-badge text-[0.65rem] md:text-[0.74rem]" data-testid="role-badge">{roleLabel}</span>
             <form action={logoutAction}>
               <button
                 type="submit"
@@ -49,7 +51,7 @@ export function AppShell({
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1280px] gap-8 px-6 py-10 md:grid-cols-[220px_1fr] md:gap-12 md:px-10">
+      <div className="mx-auto grid max-w-[1280px] gap-6 px-4 py-6 md:grid-cols-[220px_1fr] md:gap-12 md:px-10 md:py-10">
         <aside className="hidden md:block">
           <nav className="sticky top-10 space-y-1">
             {nav.map((item) => (

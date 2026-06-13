@@ -152,12 +152,39 @@ function Section({ title, label, visits }: { title: string; label: string; visit
   );
 }
 
+function buildDemoVisits(): VisitRow[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const h = (hours: number, mins: number) => {
+    const d = new Date(today);
+    d.setHours(hours, mins, 0, 0);
+    return d;
+  };
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  return [
+    { id: "v-demo-1", scheduledStart: h(9, 0), scheduledEnd: h(11, 0), status: "InProgress", clientFullName: "Eleanor Williams", clientAddress: "812 Willow Lane, Bethesda, MD 20814" },
+    { id: "v-demo-2", scheduledStart: h(13, 0), scheduledEnd: h(15, 0), status: "NotStarted", clientFullName: "Helen Greene", clientAddress: "22 Dogwood Terr, Chevy Chase, MD 20815" },
+    { id: "v-demo-3", scheduledStart: new Date(tomorrow.getTime() + 9 * 3600000), scheduledEnd: new Date(tomorrow.getTime() + 11 * 3600000), status: "NotStarted", clientFullName: "Eleanor Williams", clientAddress: "812 Willow Lane, Bethesda, MD 20814" },
+    { id: "v-demo-4", scheduledStart: new Date(yesterday.getTime() + 9 * 3600000), scheduledEnd: new Date(yesterday.getTime() + 11 * 3600000), status: "Completed", clientFullName: "Dorothy Hayes", clientAddress: "1440 Riverside Dr, Silver Spring, MD 20910" },
+    { id: "v-demo-5", scheduledStart: new Date(yesterday.getTime() + 14 * 3600000), scheduledEnd: new Date(yesterday.getTime() + 16 * 3600000), status: "Completed", clientFullName: "Helen Greene", clientAddress: "22 Dogwood Terr, Chevy Chase, MD 20815" },
+  ];
+}
+
 export default async function CnaVisits() {
   const demoRole = await getDemoRole();
   const isDemo = demoRole === "cna";
 
-  const userId = isDemo ? getDemoUser("cna").id : (await getSessionUser())?.id ?? null;
-  const visits = userId ? await loadVisitsForUserId(userId) : [];
+  let visits: VisitRow[];
+  if (isDemo) {
+    visits = buildDemoVisits();
+  } else {
+    const userId = (await getSessionUser())?.id ?? null;
+    visits = userId ? await loadVisitsForUserId(userId) : [];
+  }
   const groups = bucket(visits);
 
   const totalScheduled = groups.today.length + groups.upcoming.length;
