@@ -209,7 +209,7 @@ export default async function AgencyHome() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10">
       <div>
         <p className="text-[0.78rem] font-medium uppercase tracking-[0.18em] text-[color:var(--color-sky-700)]">
           {agencyName}
@@ -219,7 +219,7 @@ export default async function AgencyHome() {
         </h1>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <Kpi label="Active clients" value={clientCount} icon={<Users size={16} />} />
         <Kpi label="Active CNAs" value={cnaCount} icon={<Users size={16} />} />
         <Kpi label="Updates this week" value={careUpdateCount} icon={<MessageSquareText size={16} />} />
@@ -228,25 +228,25 @@ export default async function AgencyHome() {
 
       {/* AI INSIGHTS PANEL */}
       <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-sky-300)]/30 bg-gradient-to-br from-[color:var(--color-sky-100)]/30 to-[color:var(--color-cream-50)] p-1">
-        <div className="flex items-center gap-2 px-5 pt-5 pb-2">
+        <div className="flex items-center gap-2 px-4 pt-4 pb-2 md:px-5 md:pt-5">
           <Sparkles size={16} className="text-[color:var(--color-sky-700)]" />
-          <h2 className="font-display text-[1.2rem] font-semibold text-[color:var(--color-navy-900)]">
+          <h2 className="font-display text-[1.1rem] font-semibold text-[color:var(--color-navy-900)] md:text-[1.2rem]">
             AI Insights
           </h2>
-          <span className="ml-auto rounded-full bg-[color:var(--color-sky-100)] px-2 py-0.5 text-[0.7rem] font-medium text-[color:var(--color-sky-700)]">
+          <span className="ml-auto rounded-full bg-[color:var(--color-sky-100)] px-2 py-0.5 text-[0.65rem] font-medium text-[color:var(--color-sky-700)] md:text-[0.7rem]">
             Updated today
           </span>
         </div>
 
-        <div className="grid gap-6 p-5 md:grid-cols-3">
-          <div className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-5">
-            <div className="mb-4 flex items-center gap-2">
+        <div className="grid gap-4 p-4 md:grid-cols-3 md:gap-6 md:p-5">
+          <div className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 md:p-5">
+            <div className="mb-3 flex items-center gap-2 md:mb-4">
               <AlertTriangle size={14} className="text-[color:var(--color-mood-anxious)]" />
               <h3 className="text-[0.78rem] font-medium uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">
                 At-risk clients
               </h3>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {atRiskClients.length === 0 ? (
                 <p className="text-[0.82rem] text-[color:var(--color-warm-muted)]">
                   No risk signals in the last 14 days. Anxious / Unwell moods and stale-visit alerts will surface here.
@@ -267,8 +267,8 @@ export default async function AgencyHome() {
             </div>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-5">
-            <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 md:p-5">
+            <div className="mb-3 flex items-center gap-2 md:mb-4">
               <TrendingUp size={14} className="text-[color:var(--color-positive)]" />
               <h3 className="text-[0.78rem] font-medium uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">
                 Sentiment trends
@@ -309,8 +309,8 @@ export default async function AgencyHome() {
             </div>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-5">
-            <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-[var(--radius-md)] border border-[color:var(--color-warm-hairline)] bg-white p-4 md:p-5">
+            <div className="mb-3 flex items-center gap-2 md:mb-4">
               <Users size={14} className="text-[color:var(--color-sky-700)]" />
               <h3 className="text-[0.78rem] font-medium uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">CNA coaching</h3>
             </div>
@@ -327,18 +327,18 @@ export default async function AgencyHome() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="card p-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
+        <div className="card p-4 md:p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">Family seats</p>
           <p className="mt-1 font-display text-2xl text-[color:var(--color-navy-900)]">{familyCount}</p>
           <p className="mt-1 text-[0.78rem] text-[color:var(--color-positive)]">Across {clientCount} clients</p>
         </div>
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">Open family comments</p>
           <p className="mt-1 font-display text-2xl text-[color:var(--color-navy-900)]">{commentCount}</p>
           <p className="mt-1 text-[0.78rem] text-[color:var(--color-mood-anxious)]">2 need follow-up</p>
         </div>
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">Avg sentiment</p>
           <p className="mt-1 font-display text-2xl text-[color:var(--color-navy-900)]">4.2</p>
           <p className="mt-1 text-[0.78rem] text-[color:var(--color-positive)]">68% happy or calm visits</p>
@@ -346,21 +346,20 @@ export default async function AgencyHome() {
       </div>
 
       <div className="card overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[color:var(--color-warm-hairline)] px-5 py-3.5">
-          <p className="text-[0.78rem] font-medium uppercase tracking-[0.18em] text-[color:var(--color-warm-muted)]">Recent family signals</p>
-          <p className="text-[0.74rem] text-[color:var(--color-warm-muted)]">Last 48 hours</p>
+        <div className="flex items-center justify-between border-b border-[color:var(--color-warm-hairline)] px-4 py-3 md:px-5 md:py-3.5">
+          <p className="text-[0.74rem] font-medium uppercase tracking-[0.18em] text-[color:var(--color-warm-muted)] md:text-[0.78rem]">Recent family signals</p>
+          <p className="text-[0.7rem] text-[color:var(--color-warm-muted)] md:text-[0.74rem]">Last 48 hours</p>
         </div>
         <div className="divide-y divide-[color:var(--color-warm-hairline)]">
           {recentFamilySignals.map((signal, i) => (
-            <div key={i} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5">
-              <div className="flex items-center gap-3">
-                <span className="h-2 w-2 rounded-full" style={{ background: signal.needsAttention ? "var(--color-mood-anxious)" : "var(--color-positive)" }} />
-                <div>
-                  <p className="text-[0.9rem] font-medium text-[color:var(--color-navy-900)]">{signal.clientName}</p>
-                  <p className="text-[0.82rem] text-[color:var(--color-warm-ink)]">{signal.familyName}: {signal.action}</p>
-                </div>
+            <div key={i} className="flex items-start gap-3 px-4 py-3 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-2 md:px-5 md:py-3.5">
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full md:mt-0" style={{ background: signal.needsAttention ? "var(--color-mood-anxious)" : "var(--color-positive)" }} />
+              <div className="min-w-0 flex-1">
+                <p className="text-[0.9rem] font-medium text-[color:var(--color-navy-900)]">{signal.clientName}</p>
+                <p className="text-[0.82rem] leading-snug text-[color:var(--color-warm-ink)]">{signal.familyName}: {signal.action}</p>
+                <p className="mt-0.5 text-[0.74rem] text-[color:var(--color-warm-muted)] md:hidden">{signal.time}</p>
               </div>
-              <p className="text-[0.78rem] text-[color:var(--color-warm-muted)]">{signal.time}</p>
+              <p className="hidden text-[0.78rem] text-[color:var(--color-warm-muted)] md:block">{signal.time}</p>
             </div>
           ))}
         </div>
@@ -371,12 +370,12 @@ export default async function AgencyHome() {
 
 function Kpi({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
   return (
-    <div className="card p-5">
+    <div className="card p-4 md:p-5">
       <div className="flex items-center justify-between">
-        <p className="text-[0.72rem] uppercase tracking-[0.14em] text-[color:var(--color-warm-muted)]">{label}</p>
+        <p className="text-[0.68rem] uppercase tracking-[0.12em] text-[color:var(--color-warm-muted)] md:text-[0.72rem] md:tracking-[0.14em]">{label}</p>
         <span className="text-[color:var(--color-warm-muted)]">{icon}</span>
       </div>
-      <p className="mt-2 font-display text-[2rem] text-[color:var(--color-navy-900)]">{value}</p>
+      <p className="mt-1.5 font-display text-[1.6rem] text-[color:var(--color-navy-900)] md:mt-2 md:text-[2rem]">{value}</p>
     </div>
   );
 }
